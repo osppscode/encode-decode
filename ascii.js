@@ -1,12 +1,12 @@
 // ASCII encode and decode (7-bit)
 
-// Convert text → "0100101 ..." bitstring
-export function asciiEncode(text) {
-  return text
-    .split("")
-    .map(char => char.charCodeAt(0).toString(2).padStart(7, "0"))
-    .join(" ");
+// 7-bit ASCII encode: returns array of 7-char "0/1" strings per character
+export function ascii7BitsForText(text) {
+  return [...text].map(ch =>
+    ch.charCodeAt(0).toString(2).padStart(7, "0").slice(-7)
+  );
 }
+
 
 // Convert "0100101 ..." → text
 export function asciiDecode(bitstring) {
