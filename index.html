@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Encode / Decode</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>Encode / Decode</h1>
+
+  <nav>
+    <button id="tab-encode">Encode</button>
+    <button id="tab-decode">Decode</button>
+  </nav>
+
+  <div id="encode-view" class="view">
+    <textarea id="encode-input" placeholder="Enter text to encode"></textarea>
+    <button id="encode-btn">Encode</button>
+    <pre id="encode-output"></pre>
+  </div>
+
+  <div id="decode-view" class="view hidden">
+    <textarea id="decode-input" placeholder="Enter code to decode"></textarea>
+    <button id="decode-btn">Decode</button>
+    <pre id="decode-output"></pre>
+  </div>
+
+  <script src="baudot.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
