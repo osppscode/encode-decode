@@ -204,7 +204,7 @@ function drawSignal(canvas, cleanArr, noisyArr) {
   ctx.clearRect(0,0,W,H);
 
   // axes
-  ctx.strokeStyle = '#bbb';
+  ctx.strokeStyle = '#1f1f1f';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(mL, mT); ctx.lineTo(mL, mT + h); ctx.lineTo(mL + w, mT + h);
@@ -214,12 +214,12 @@ function drawSignal(canvas, cleanArr, noisyArr) {
   const yOf = v => mT + h - (v / 9.9) * h;
 
   // reference lines: 2, 5, 8
-  [[2,'#e6e6e6'], [5,'#ffd6d6'], [8,'#e6e6e6']].forEach(([v,col])=>{
+  [[2,'rgba(0,255,149,0.15)'], [5,'rgba(255,59,59,0.25)'], [8,'rgba(0,255,149,0.15)']].forEach(([v,col])=>{
     const y = yOf(v);
     ctx.strokeStyle = col;
     ctx.beginPath(); ctx.moveTo(mL, y); ctx.lineTo(mL + w, y); ctx.stroke();
-    ctx.fillStyle = '#777';
-    ctx.font = '11px sans-serif';
+    ctx.fillStyle = '#00ff95';
+    ctx.font = '11px "Cascadia Code", "Fira Code", "Consolas", "Courier New", monospace';
     ctx.fillText(v.toString(), 6, y - 2);
   });
 
@@ -258,9 +258,9 @@ function drawSignal(canvas, cleanArr, noisyArr) {
   }
 
 
-  // clean = gray, noisy = black
-  plotStep(cleanArr, '#999'); // clean in gray
-  plotStep(noisyArr, '#000'); // noisy in black
+  // clean = neon green, noisy = red
+  plotStep(cleanArr, '#00ff95');
+  plotStep(noisyArr, '#ff3b3b');
 }
 
 function computeKForXResolution(symbolCount, canvasWidth) {
