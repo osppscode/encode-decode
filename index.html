@@ -9,8 +9,8 @@
   <div class="app-shell">
     <header>
       <div id="tabs" role="tablist">
-        <div id="tab-encode" class="tab active" role="tab" aria-selected="true" aria-controls="encode-view">Encode</div>
-        <div id="tab-decode" class="tab" role="tab" aria-selected="false" aria-controls="decode-view">Decode</div>
+        <div id="tab-encode" class="tab active" role="tab" aria-selected="true" aria-controls="encode-view">Encoder Tab</div>
+        <div id="tab-decode" class="tab" role="tab" aria-selected="false" aria-controls="decode-view">Decoder Tab</div>
       </div>
     </header>
 
@@ -23,16 +23,16 @@
         <h4>Original Message:</h4>
 
         <div id="char-grid" class="grid-10">
-          <input maxlength="1" class="char" />
-          <input maxlength="1" class="char" />
-          <input maxlength="1" class="char" />
-          <input maxlength="1" class="char" />
-          <input maxlength="1" class="char" />
-          <input maxlength="1" class="char" />
-          <input maxlength="1" class="char" />
-          <input maxlength="1" class="char" />
-          <input maxlength="1" class="char" />
-          <input maxlength="1" class="char" />
+          <input maxlength="1" class="char" placeholder="Ø" />
+          <input maxlength="1" class="char" placeholder="Ø" />
+          <input maxlength="1" class="char" placeholder="Ø" />
+          <input maxlength="1" class="char" placeholder="Ø" />
+          <input maxlength="1" class="char" placeholder="Ø" />
+          <input maxlength="1" class="char" placeholder="Ø" />
+          <input maxlength="1" class="char" placeholder="Ø" />
+          <input maxlength="1" class="char" placeholder="Ø" />
+          <input maxlength="1" class="char" placeholder="Ø" />
+          <input maxlength="1" class="char" placeholder="Ø" />
         </div>
         <div id="char-errors" class="error hidden"></div>
 
@@ -61,7 +61,7 @@
         <div class="actions-row">
           <h3>Noisy Values:</h3>
           <button id="freeze-btn">Freeze noise</button>
-          <button id="copy-noisy-btn">Copy noisy values</button>
+          <button id="copy-noisy-btn">Copy values</button>
           <span id="copy-status" class="copy-status hidden">Copied</span>
         </div>
 

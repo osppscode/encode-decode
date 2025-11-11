@@ -39,7 +39,6 @@ body {
   min-height: max(0px, calc(100vh - 48px));
   background: var(--bg);
   box-shadow: var(--shadow);
-  border-radius: 20px;
   width: 100%;
   position: relative;
 }
@@ -60,7 +59,6 @@ a {
 
 header {
   --tab-lift: 32px;
-  border: 2px solid var(--accent);
   border-bottom: none;
   border-radius: 20px 20px 0 0;
   padding: var(--tab-lift) 36px 0;
@@ -73,49 +71,49 @@ header {
 
 #tabs {
   display: flex;
-  gap: 12px;
-  align-items: flex-end;
-  margin: calc(-1 * var(--tab-lift)) 0 0;
-  padding: 0;
+  gap: 10px;
+  margin: 20px 20px 0 20px;
+  position: relative;
+  z-index: 5; /* tabs sit in front of panel border */
 }
 
+/* Base Tab (inactive) */
 .tab {
-  padding: 10px 18px;
-  background: var(--panel-bg);
-  border: 2px solid var(--accent);
-  border-bottom: none;
+  padding: 8px 22px;
+  background: #000;
+  color: #00ff99;
+  border: 2px solid #00ff99;
+  border-bottom: none; /* <-- important */
   border-radius: 12px 12px 0 0;
+  opacity: 0.45; /* inactive = dim */
   cursor: pointer;
-  color: var(--text);
-  box-shadow: var(--shadow);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, opacity 0.2s ease;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  opacity: 0.7;
-  margin-bottom: -2px;
+  transition: opacity 0.25s;
 }
 
+/* Hover feedback */
 .tab:hover {
-  transform: translateY(-2px);
-  background: #111;
-  opacity: 1;
+  opacity: 0.7;
 }
 
+/* Active Tab */
 .tab.active {
   opacity: 1;
-  background: #0f0f0f;
+  background: #000;
+  border-bottom: 0;        /* NO lower border */
+  box-shadow: 0 0 15px #00ff99;
+  position: relative;
+  z-index: 10;             /* sits above panel edge */
 }
 
+/* Panel (continuous glowing border behind tabs) */
 #panel {
-  background: var(--panel-bg);
-  border: 2px solid var(--accent);
-  border-radius: 0 0 20px 20px;
-  padding: 32px 36px 32px;
-  box-shadow: none;
-  flex: 1;
-  margin-top: -2px;
+  margin: 0 20px 20px 20px;
+  border: 2px solid #00ff99;
+  border-radius: 0 12px 12px 12px;
+  background: #000;
+  padding: 18px;
   position: relative;
-  z-index: 0;
+  z-index: 1;
 }
 
 .view.hidden {
@@ -167,7 +165,8 @@ textarea {
 
 button {
   padding: 10px 18px;
-  border: 1px solid var(--panel-border);
+  border: 2px solid var(--panel-border);
+  border-color:#006b3a;
   border-radius: 6px;
   background: var(--button-bg);
   color: var(--text);
@@ -293,6 +292,12 @@ select {
     flex-direction: column;
     align-items: stretch;
   }
+
+.char::placeholder {
+  color: #006b3a;   /* slightly dimmer than main green */
+  opacity: 1;       /* we want it visible, not faint */
+  text-align: center;
+}
 
   button,
   select {
