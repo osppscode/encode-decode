@@ -6,102 +6,96 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="app-shell">
+    <header>
+      <div id="tabs" role="tablist">
+        <div id="tab-encode" class="tab active" role="tab" aria-selected="true" aria-controls="encode-view">Encode</div>
+        <div id="tab-decode" class="tab" role="tab" aria-selected="false" aria-controls="decode-view">Decode</div>
+      </div>
+    </header>
 
-<header>
-  <div id="tabs" role="tablist">
-    <div id="tab-encode" class="tab active" role="tab" aria-selected="true" aria-controls="encode-view">Encode</div>
-    <div id="tab-decode" class="tab" role="tab" aria-selected="false" aria-controls="decode-view">Decode</div>
-  </div>
-</header>
+    <div id="panel">
+      <div id="encode-view" class="view">
+        <h1>Encode a message into digital values:</h1>
 
-<div id="panel">
+        <h4>Type up to 9 characters in the boxes. Then choose an Encoding Mode and click Encode. Allowed characters include A–Z, space, . , ! ? &</h4>
 
+        <h4>Original Message:</h4>
 
-<div id="encode-view" class="view">
+        <div id="char-grid" class="grid-9">
+          <input maxlength="1" class="char" />
+          <input maxlength="1" class="char" />
+          <input maxlength="1" class="char" />
+          <input maxlength="1" class="char" />
+          <input maxlength="1" class="char" />
+          <input maxlength="1" class="char" />
+          <input maxlength="1" class="char" />
+          <input maxlength="1" class="char" />
+          <input maxlength="1" class="char" />
+        </div>
+        <div id="char-errors" class="error hidden"></div>
 
-  <h1>Encode a message into digital values:</h1>
+        <div class="mode-row">
+          <label for="mode-encode">Encoding Mode:</label>
+          <select id="mode-encode">
+            <option value="binary7" selected>Binary (ASCII 7-bit)</option>
+            <option value="base32">32-level (Direct Map)</option>
+          </select>
+        </div>
 
-  <h4>Type up to 10 characters in the boxes. Then choose an Encoding Mode and click Encode. Allowed characters include A–Z, space, . , ! ? &</h4>
+        <button id="encode-btn">Encode</button>
 
-  <h4>Original Message:</h4>
+        <h4>Use the slider to add noise to the signal.</h4>
 
-  <div id="char-grid" class="grid-10">
-    <input maxlength="1" class="char" />
-    <input maxlength="1" class="char" />
-    <input maxlength="1" class="char" />
-    <input maxlength="1" class="char" />
-    <input maxlength="1" class="char" />
-    <input maxlength="1" class="char" />
-    <input maxlength="1" class="char" />
-    <input maxlength="1" class="char" />
-    <input maxlength="1" class="char" />
-    <input maxlength="1" class="char" />
-  </div>
-<div id="char-errors" class="error hidden"></div>
+        <div class="noise-area">
+          <input id="noise" type="range" min="0" max="3.5" step="0.1" value="0">
+          <div class="noise-labels">
+            <span>Low noise</span>
+            <span>Moderate Noise</span>
+            <span>High Noise</span>
+            <span>Very High Noise</span>
+          </div>
+        </div>
 
-    <div class="mode-row">
-    <label for="mode-encode">Encoding Mode:</label>
-    <select id="mode-encode">
-      <option value="binary7" selected>Binary (ASCII 7-bit)</option>
-      <option value="base32">32-level (Direct Map)</option>
-    </select>
-  </div>
+        <div class="actions-row">
+          <h3 id="noisy-label">Noisy Values:</h3>
+          <button id="freeze-btn">Freeze noise</button>
+          <button id="copy-noisy-btn">Copy noisy values</button>
+          <span id="copy-status" class="copy-status hidden">Copied</span>
+        </div>
 
-  <button id="encode-btn">Encode</button>
+        <pre id="encode-output-noisy"></pre>
 
-  <h4>Use the slider to add noise to the signal.</h4>
+        <h3>Signal Graph:</h3>
+        <canvas id="signal" width="900" height="220"></canvas>
 
-<div class="noise-area">
-  <input id="noise" type="range" min="0" max="3.5" step="0.1" value="0">
-  <div class="noise-labels">
-    <span>Low noise</span>
-    <span>Moderate Noise</span>
-    <span>High Noise</span>
-    <span>Very High Noise</span>
-  </div>
-</div>
+        <h3>Zero Noise Values:</h3>
+        <pre id="encode-output"></pre>
+      </div>
 
-<div class="actions-row">
-  <h3>Noisy Values:</h3>
-  <button id="freeze-btn">Freeze noise</button>
-  <button id="copy-noisy-btn">Copy noisy values</button>
-  <span id="copy-status" class="copy-status hidden">Copied</span>
-</div>
+      <div id="decode-view" class="view hidden" role="tabpanel">
+        <h1>Decode a message from digital values:</h1>
 
-<pre id="encode-output-noisy"></pre>
+        <h4>Type or paste values into the box. Then choose a Decoding Mode and click Decode.</h4>
 
-<h3>Signal Graph:</h3>
-<canvas id="signal" width="900" height="220"></canvas>
-
-
-  <h3>Zero Noise Values:</h3>
-  <pre id="encode-output"></pre>
-</div>
-
-
-  <div id="decode-view" class="view hidden" role="tabpanel">
-
-    <h1>Decode a message from digital values:</h1>
-
-    <h4>Type or paste values into the box. Then choose a Decoding Mode and click Decode.</h4>
-
-    <textarea id="decode-input" placeholder="Enter code to decode"></textarea>
+        <textarea id="decode-input" placeholder="Enter code to decode"></textarea>
         <br> </br>
-    <div class="mode-row">
-      <label for="mode-decode">Decoding Mode:</label>
-      <select id="mode-decode">
-        <option value="binary7" selected>Binary (ASCII 7-bit)</option>
-        <option value="base32">32-level (Direct Map)</option>
-      </select>
+        <div class="mode-row">
+          <label for="mode-decode">Decoding Mode:</label>
+          <select id="mode-decode">
+            <option value="binary7" selected>Binary (ASCII 7-bit)</option>
+            <option value="base32">32-level (Direct Map)</option>
+          </select>
+        </div>
+        <br> </br>
+        <button id="decode-btn">Decode</button>
+        <br> </br>
+        <h2>Decoded Message:</h2>
+        <pre id="decode-output"></pre>
+      </div>
     </div>
-    <br> </br> 
-    <button id="decode-btn">Decode</button>
-    <br> </br> 
-    <h2>Decoded Message:</h2>
-    <pre id="decode-output"></pre>
-</div>
+  </div>
 
-<script type="module" src="app.js"></script>
-
+  <script type="module" src="app.js"></script>
 </body>
 </html>
