@@ -296,7 +296,9 @@ function renderGraph() {
 
   const K = computeKForXResolution(cleanSymbols.length, canvas.width);
   const cleanTrace = repeatEach(cleanSymbols, K);
-  const noisyTrace = makeFastNoiseTrace(cleanSymbols, amp, K, /*noRound=*/true, decimals);
+  const noisyTrace = amp === 0
+    ? []
+    : makeFastNoiseTrace(cleanSymbols, amp, K, /*noRound=*/true, decimals);
 
   drawSignal(canvas, cleanTrace, noisyTrace);
 }
