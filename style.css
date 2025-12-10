@@ -144,14 +144,14 @@ textarea {
   resize: vertical;
 }
 
-.grid-10 {
+.grid-9 {
   display: grid;
-  grid-template-columns: repeat(10, minmax(0, 1fr));
+  grid-template-columns: repeat(9, minmax(0, 1fr));
   gap: 10px;
   margin: 12px 0 18px;
 }
 
-.grid-10 .char {
+.grid-9 .char {
   text-align: center;
   font-size: 22px;
   padding: 10px 0;
@@ -159,7 +159,7 @@ textarea {
   transition: box-shadow 0.2s ease;
 }
 
-.grid-10 .char:focus {
+.grid-9 .char:focus {
   box-shadow: 0 0 14px rgba(0, 255, 149, 0.4);
 }
 
@@ -227,6 +227,10 @@ pre {
   box-shadow: inset 0 0 12px rgba(0, 255, 149, 0.15);
 }
 
+#encode-output-noisy.noisy-active {
+  color: var(--danger);
+}
+
 #error,
 .error {
   color: var(--danger);
@@ -283,7 +287,7 @@ select {
     padding: 16px;
   }
 
-  .grid-10 {
+  .grid-9 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 

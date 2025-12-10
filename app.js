@@ -13,7 +13,7 @@ const copyStatus = document.getElementById('copy-status');
 
 // map bit → physical level
 function bitToLevel(b) {
-  return b === "1" ? "8.0" : "2.0";
+  return b === "1" ? "8.0" : "0.0";
 }
 
 // clamp helper
@@ -22,7 +22,8 @@ function clamp(v, lo, hi) {
 }
 
 // Binary centers and threshold (unchanged)
-const BINARY_LOW = 2.0, BINARY_HIGH = 8.0, THRESH = 5.0;
+const BINARY_LOW = 0.0, BINARY_HIGH = 8.0, THRESH = 5.0;
+const SCALE_MAX = 10.0;
 
 // 32-level direct character→level mapping (indices 1..32)
 const STEP32 = 0.309375; // 32 * STEP32 = 9.9
@@ -72,6 +73,12 @@ function showCopyStatus(msg, ok=true) {
   setTimeout(()=>copyStatus.classList.add('hidden'), 1200);
 }
 
+function setNoisyColor(active) {
+  const box = document.getElementById('encode-output-noisy');
+  if (!box) return;
+  box.classList.toggle('noisy-active', active);
+}
+
 
 
 const modeEncodeSel = document.getElementById('mode-encode');
@@ -82,14 +89,16 @@ function updateNoisyFromClean() {
   if (isFrozen) { renderGraph(); return; }
 
   const clean = document.getElementById('encode-output').textContent;
-  if (!clean || !clean.trim()) { renderGraph(); return; }
+  if (!clean || !clean.trim()) { setNoisyColor(false); renderGraph(); return; }
 
   const mode = modeEncodeSel ? modeEncodeSel.value : 'binary7';
   const decimals = (mode === 'binary7') ? 1 : 2;
   const amp = Number(noiseSlider?.value || 0);
 
   document.getElementById('encode-output-noisy').textContent =
-    addNoise(clean, amp, decimals);
+    addNoise(clean, amp, decimals, mode);
+
+  setNoisyColor(amp > 0);
 
   renderGraph();
 }
@@ -146,15 +155,20 @@ document.querySelectorAll('#char-grid .char').forEach(el => {
 
 function fmt(n, decimals) { return n.toFixed(decimals); }
 
-// apply noise U[-Δ, +Δ]
-function addNoise(levelString, amp, decimals) {
+function jitterValue(baseValue, amp, mode) {
+  const isBinaryLow = mode === 'binary7' && Math.abs(baseValue - BINARY_LOW) < 1e-9;
+  const jitter = isBinaryLow ? Math.random() * amp : (Math.random() * 2 - 1) * amp;
+  return clamp(baseValue + jitter, 0.0, SCALE_MAX);
+}
+
+// apply noise U[-Δ, +Δ], except binary lows only get additive noise
+function addNoise(levelString, amp, decimals = 1, mode = 'binary7') {
   if (!levelString || !levelString.trim()) return "";
   const lines = levelString.trim().split(/\n+/);
   return lines.map(line => {
     const nums = line.trim().split(/\s+/).map(parseFloat);
     const noisy = nums.map(x => {
-      const jitter = (Math.random() * 2 - 1) * amp;
-      const y = clamp(x + jitter, 0.0, 9.9);
+      const y = jitterValue(x, amp, mode);
       return y.toFixed(decimals);
     });
     return noisy.join(" ");
@@ -176,12 +190,11 @@ function repeatEach(arr, K) {
 }
 
 // fast noise for the GRAPH; optionally avoid rounding for smoothness
-function makeFastNoiseTrace(symbolLevels, amp, K, noRound=false, decimals=1) {
+function makeFastNoiseTrace(symbolLevels, amp, K, noRound=false, decimals=1, mode='binary7') {
   const out = [];
   for (const v of symbolLevels) {
     for (let i = 0; i < K; i++) {
-      const jitter = (Math.random() * 2 - 1) * amp;
-      const y = clamp(v + jitter, 0.0, 9.9);
+      const y = jitterValue(v, amp, mode);
       out.push(noRound ? y : Number(y.toFixed(decimals)));
     }
   }
@@ -210,18 +223,27 @@ function drawSignal(canvas, cleanArr, noisyArr) {
   ctx.moveTo(mL, mT); ctx.lineTo(mL, mT + h); ctx.lineTo(mL + w, mT + h);
   ctx.stroke();
 
-  // value→y map (0..9.9)
-  const yOf = v => mT + h - (v / 9.9) * h;
+  // value→y map (0..10)
+  const yOf = v => mT + h - (v / SCALE_MAX) * h;
 
-  // reference lines: 2, 5, 8
-  [[2,'rgba(0,255,149,0.15)'], [5,'rgba(255,59,59,0.25)'], [8,'rgba(0,255,149,0.15)']].forEach(([v,col])=>{
+  // reference lines: 0,2,4,6,8,10 plus threshold at 5
+  const ticks = [0, 2, 4, 6, 8, 10];
+  ticks.forEach(v => {
     const y = yOf(v);
-    ctx.strokeStyle = col;
+    ctx.strokeStyle = 'rgba(0,255,149,0.15)';
     ctx.beginPath(); ctx.moveTo(mL, y); ctx.lineTo(mL + w, y); ctx.stroke();
     ctx.fillStyle = '#00ff95';
     ctx.font = '11px "Cascadia Code", "Fira Code", "Consolas", "Courier New", monospace';
     ctx.fillText(v.toString(), 6, y - 2);
   });
+
+  // threshold marker
+  const yThresh = yOf(THRESH);
+  ctx.strokeStyle = 'rgba(255,59,59,0.25)';
+  ctx.beginPath(); ctx.moveTo(mL, yThresh); ctx.lineTo(mL + w, yThresh); ctx.stroke();
+  ctx.fillStyle = '#ff3b3b';
+  ctx.font = '11px "Cascadia Code", "Fira Code", "Consolas", "Courier New", monospace';
+  ctx.fillText(THRESH.toString(), 6, yThresh - 2);
 
   // choose x scale based on the longer of the two arrays
   const n = Math.max(cleanArr.length, noisyArr.length);
@@ -298,7 +320,7 @@ function renderGraph() {
   const cleanTrace = repeatEach(cleanSymbols, K);
   const noisyTrace = amp === 0
     ? []
-    : makeFastNoiseTrace(cleanSymbols, amp, K, /*noRound=*/true, decimals);
+    : makeFastNoiseTrace(cleanSymbols, amp, K, /*noRound=*/true, decimals, mode);
 
   drawSignal(canvas, cleanTrace, noisyTrace);
 }
@@ -350,6 +372,7 @@ document.getElementById('encode-btn').onclick = () => {
     // clear outputs and graph if invalid
     document.getElementById('encode-output').textContent = "";
     document.getElementById('encode-output-noisy').textContent = "";
+    setNoisyColor(false);
     renderGraph();
     return; // stop; user must fix red boxes
   }
@@ -388,17 +411,29 @@ noiseSlider.addEventListener("input", () => {
   const amp = Number(noiseSlider.value);
   if (amp === 0) return;
 
-  noiseInterval = setInterval(updateNoisyFromClean, 200);
+  const mode = modeEncodeSel ? modeEncodeSel.value : 'binary7';
+  const decimals = (mode === 'binary7') ? 1 : 2;
+  noiseInterval = setInterval(() => {
+    const cleanNow = document.getElementById('encode-output').textContent;
+    document.getElementById('encode-output-noisy').textContent =
+      cleanNow ? addNoise(cleanNow, amp, decimals, mode) : "";
+    setNoisyColor(amp > 0);
+    renderGraph();
+  }, 200);
 });
 
 // restart animation to respect any existing slider value
 const amp = Number(noiseSlider.value);
 if (noiseInterval) clearInterval(noiseInterval);
 if (amp > 0) {
+  const mode = modeEncodeSel ? modeEncodeSel.value : 'binary7';
+  const decimals = (mode === 'binary7') ? 1 : 2;
   noiseInterval = setInterval(() => {
     const cleanNow = document.getElementById('encode-output').textContent;
     document.getElementById('encode-output-noisy').textContent =
-      cleanNow ? addNoise(cleanNow, amp) : "";
+      cleanNow ? addNoise(cleanNow, amp, decimals, mode) : "";
+    setNoisyColor(amp > 0);
+    renderGraph();
   }, 200);
 }
 
